@@ -1,0 +1,20 @@
+{
+    "name": "PaintIn3D_Game",
+    "rootNamespace": "",
+    "references": [
+        "Unity.InputSystem",
+        "CW.Common",
+        "PaintIn3D"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [
+        "Android"
+    ],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
