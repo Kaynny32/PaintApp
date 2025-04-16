@@ -16,23 +16,24 @@ public class DonwloadAssetBundlesSimplifWay : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(LoadBundleBrush("/brushbundle"));
+        StartCoroutine(LoadBundle("/brushbundle", _conBrush));
+        StartCoroutine(LoadBundle("/stickerbundle", _conSticker));
     }
 
-    IEnumerator LoadBundleBrush(string bundelName)
+    IEnumerator LoadBundle(string bundelName, Transform container)
     {
         string path = Path.Combine(Application.streamingAssetsPath + bundelName);
         AssetBundleCreateRequest BundleLoad = AssetBundle.LoadFromFileAsync(path);
         yield return BundleLoad;
         AssetBundle bundle = BundleLoad.assetBundle;      
-        InstatiateFromAssetBudle(bundle, _conBrush);
+        InstatiateFromAssetBudle(bundle, container);
     }
 
-    void InstatiateFromAssetBudle(AssetBundle bundle, Transform conteiner)
+    void InstatiateFromAssetBudle(AssetBundle bundle, Transform container)
     {
         foreach (GameObject go in bundle.LoadAllAssets())
         {
-            GameObject clone = Instantiate(go, conteiner);
+            GameObject clone = Instantiate(go, container);
             clone.name = go.name;
         }  
     }

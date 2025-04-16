@@ -1,10 +1,10 @@
 ManifestFileVersion: 0
-CRC: 2388369407
+CRC: 3868981488
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
-      Name: test
+      Name: brushbundle
       Dependencies: {}
     Info_1:
-      Name: brushbundle
+      Name: stickerbundle
       Dependencies: {}
