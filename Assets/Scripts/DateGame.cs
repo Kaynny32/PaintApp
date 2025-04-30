@@ -3,6 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[Serializable]
+public class DateGame
+{
+   public List<GameObject> _listBrush;
+   public List<GameObject> _listSticker;
+   public List<ColorDate> _listColor;
+}
 
 [Serializable]
 public class ColorDate
@@ -14,8 +21,8 @@ public class ColorDate
         this.g = g;
         this.b = b;
     }
-    public string name { get; set; }
-    public float r { get; set; }
-    public float g { get; set; }
-    public float b { get; set; }
+    public string name;
+    public float r;
+    public float g;
+    public float b;
 }

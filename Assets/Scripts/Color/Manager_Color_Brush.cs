@@ -35,7 +35,7 @@ public class Manager_Color_Brush : MonoBehaviour
 
     private void Start()
     {
-        ReadJsonColor();
+      //  ReadJsonColor();
     }
 
     public void Add_Ui_Elements()
