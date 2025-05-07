@@ -103,7 +103,7 @@ public class Manager_Color_Brush : MonoBehaviour
         colorDates.Add(colorDateGreen);
     }
 
-    public void ShowColorUi(int index, Color color)
+    /*public void ShowColorUi(int index, Color color)
     {
         for (int i = 0; i < _cloneBtnColor.Count; i++)
         {
@@ -111,7 +111,7 @@ public class Manager_Color_Brush : MonoBehaviour
         }
         _cloneBtnColor[index].alpha = 1f;
         AssignColorToBrush(color);
-    }
+    }*/
 
     public void AssignColorToBrush(Color color)
     {

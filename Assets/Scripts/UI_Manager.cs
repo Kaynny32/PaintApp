@@ -1,3 +1,4 @@
+using CW.Common;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -91,5 +92,43 @@ public class UI_Manager : MonoBehaviour
         _prefabColorClon.Clear();
         _prefabStickerClon.Clear();
         _prefabBrushClon.Clear();
+    }
+
+    public void Add_Ui_Game(string nameUI,GameObject prefab, Transform container, DateGame dateGame, ListToolsAndUIElements listToolsAndUIElements)
+    {
+        switch (nameUI)
+        {
+            case "brushUI":
+                foreach (GameObject go in dateGame._listBrush)
+                {
+                    GameObject clone = Instantiate(prefab, container);
+                    clone.name = go.name;
+                    clone.GetComponent<Image>().sprite = go.GetComponent<Image>().sprite;
+                    clone.GetComponent<CwDemoButton>().enabled = false;
+                    listToolsAndUIElements._listBrush.Add(clone);
+                }
+                break;
+            case "stickerUI":
+                foreach (GameObject go in dateGame._listSticker)
+                {
+                    GameObject clone = Instantiate(go, container);
+                    listToolsAndUIElements._listSticker.Add(clone);
+                }
+                break;
+            case "colorUI":
+                int i = 0;
+                foreach (ColorDate go in dateGame._listColor)
+                {                    
+                    Color bufColor = new Color32((byte)go.r, (byte)go.g, (byte)go.b, 255);
+                    GameObject clone = Instantiate(prefab, container);
+                    clone.name = go.name;
+                    clone.GetComponent<Button>().interactable = true;
+                    clone.GetComponent<ItemColor>().Set_IndexAndColor(i, bufColor);                    
+                    clone.GetComponent<Image>().color = bufColor;
+                    listToolsAndUIElements._listColor.Add(clone);
+                    i++;
+                }
+                break;
+        }
     }
 }
