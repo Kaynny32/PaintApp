@@ -34,9 +34,11 @@ MonoBehaviour:
     - Assembly-CSharp-firstpass
     - CW.Common
     - DOTween.Modules
+    - IngameDebugConsole.Runtime
     - PaintIn3D
     - PaintIn3D_Editor
     - PaintIn3D_Game
+    - SteamVR
     showAdvancedSettings: 0
   addMgrToSceneAutomatically: 0
   autoUpdateReferences: 1

@@ -15,7 +15,9 @@ public class ItemColor : MonoBehaviour
 
     public void ShowColor()
     {
-        GetComponent<CanvasGroup>().alpha = 1;
-       //Manager_Color_Brush.instance.ShowColorUi(index, color);
+        GameManager.instance.HideCollorButton(gameObject, index);  
+        GameManager.instance.SwitchColor(color);
+        GameManager.instance.CloseSticker();
+        UI_Manager.instance.ClosePopapScale();
     }
 }

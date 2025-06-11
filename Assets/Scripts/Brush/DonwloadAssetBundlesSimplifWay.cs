@@ -1,13 +1,32 @@
 using Newtonsoft.Json.Linq;
 using System.Collections;
-using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using UnityEngine;
-using UnityEngine.Networking;
-using UnityEngine.UI;
 
 public class DonwloadAssetBundlesSimplifWay : MonoBehaviour
 {
+    public static DonwloadAssetBundlesSimplifWay instance;
+
+    [SerializeField]
+    FlexibleColorPicker fcp;
+    [SerializeField]
+    string _hex;
+
+    string path = Application.streamingAssetsPath;
+
+    private void Awake()
+    {
+        if (instance == null)
+            instance = this;
+       
+    }
+
+    private void Start()
+    {
+        
+    }
+
     public void StartCorutineLoad(string bundelName)
     {
         StartCoroutine(LoadBundle(bundelName));
@@ -35,23 +54,21 @@ public class DonwloadAssetBundlesSimplifWay : MonoBehaviour
 
 
     public void ReadJsonFiel()
-    {
-        if (File.Exists("Color.json"))
+    {        
+        if (File.Exists(path + "/Json/Color.json"))
         {
-            StreamReader streamReader = new StreamReader("Color.json");
+            StreamReader streamReader = new StreamReader(path + "/Json/Color.json");
             string str = streamReader.ReadToEnd();
             JObject jobj = JObject.Parse(str);
             JArray _jArray = jobj["color"].Value<JArray>();
             foreach (JObject _col in _jArray)
             {
-                string _name = _col["name"].Value<string>();
-                float _r = _col["r"].Value<float>();
-                float _g = _col["g"].Value<float>();
-                float _b = _col["b"].Value<float>();
+                string _hex = _col["hex"].Value<string>();
 
-                ColorDate colorDate = new ColorDate(_name, _r, _g, _b);
+                ColorDate colorDate = new ColorDate(_hex);
                 GameManagetDate.instance.SetColorDate(colorDate);
             }
+            streamReader.Close();
         }
         else
         {
@@ -61,19 +78,68 @@ public class DonwloadAssetBundlesSimplifWay : MonoBehaviour
 
     void DefaultColor()
     {
-        ColorDate colorDateBlack = new ColorDate("black", 0, 0, 0);
+        ColorDate colorDateBlack = new ColorDate("black");
         GameManagetDate.instance.SetColorDate(colorDateBlack);
 
-        ColorDate colorDateWhite = new ColorDate("white", 255, 255, 255);
+        ColorDate colorDateWhite = new ColorDate("white");
         GameManagetDate.instance.SetColorDate(colorDateWhite);
 
-        ColorDate colorDateYellow = new ColorDate("yellow", 255, 220, 0);
+        ColorDate colorDateYellow = new ColorDate("yellow");
         GameManagetDate.instance.SetColorDate(colorDateYellow);
 
-        ColorDate colorDateRed = new ColorDate("red", 255, 27, 0);
+        ColorDate colorDateRed = new ColorDate("red");
         GameManagetDate.instance.SetColorDate(colorDateRed);
 
-        ColorDate colorDateGreen = new ColorDate("green", 7, 255, 0);
+        ColorDate colorDateGreen = new ColorDate("green");
         GameManagetDate.instance.SetColorDate(colorDateGreen);
+    }
+
+    public static Color FromHex(string hex)
+    {
+        
+        if (hex.Length < 6)
+        {
+            throw new System.FormatException("Needs a string with a length of at least 6");
+        }
+        var r = hex.Substring(0, 2);
+        var g = hex.Substring(2, 2);
+        var b = hex.Substring(4, 2);
+        string alpha;
+        if (hex.Length >= 8)
+            alpha = hex.Substring(6, 2);
+        else
+            alpha = "FF";
+
+        return new Color((int.Parse(r, NumberStyles.HexNumber) / 255f),
+                        (int.Parse(g, NumberStyles.HexNumber) / 255f),
+                        (int.Parse(b, NumberStyles.HexNumber) / 255f),
+                        (int.Parse(alpha, NumberStyles.HexNumber) / 255f));
+    }
+
+    public void ColorSave()
+    {
+        _hex = ColorUtility.ToHtmlStringRGB(fcp.color);
+
+        if (File.Exists(path + "/Json/Color.json"))
+        {
+            StreamReader streamReader = new StreamReader(path + "/Json/Color.json");
+            string str = streamReader.ReadToEnd();
+            JObject jobj = JObject.Parse(str);
+            JArray _jArray = jobj["color"].Value<JArray>();
+
+            JObject jobjBuf = new JObject();
+            jobjBuf["hex"] = _hex;
+            _jArray.Add(jobjBuf);
+            JObject jobjttt = new JObject();
+            jobjttt["color"] = _jArray;
+
+            streamReader.Close();
+            StreamWriter streamWriter = new StreamWriter(path + "/Json/Color.json");
+            streamWriter.Write(jobjttt);
+            streamWriter.Close();
+        }
+        GameManagetDate.instance.ResetColorDate();
+        ReadJsonFiel();
+        UI_Manager.instance.Instatiate_UI_Elements("color");
     }
 }

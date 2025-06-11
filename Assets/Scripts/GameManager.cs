@@ -1,32 +1,30 @@
+using CW.Common;
 using DG.Tweening;
 using PaintIn3D;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-[Serializable]
-public class ListToolsAndUIElements
-{
-    public List<GameObject> _listSticker = new List<GameObject>();
-    public List<GameObject> _listBrush = new List<GameObject>();
-    public List<GameObject> _listColor = new List<GameObject>();
-    [Header("Tools")]
-    public List<GameObject> _listStickerTools = new List<GameObject>();
-    public List<GameObject> _listBrushTools = new List<GameObject>();
-    public List<GameObject> _listColorTools = new List<GameObject>();
-}
+
 public class GameManager : MonoBehaviour
 {
+    public static GameManager instance;
+    [SerializeField]
+    ScaleSticker scaleSticker;
+
+    [SerializeField]
+    ButtonRotate buttonRotate;
+
     [SerializeField]
     GameObject MainCamera;
     [SerializeField]
     GameObject _paricalBg;
-
-    [Header("Date Color Brush Sticker")]
     [SerializeField]
-    ListToolsAndUIElements _listToolsAndUIElements;
+    RawImage _rawBg;
+
+    [SerializeField]
+    List<DateToolsAndUiElements> _dateTools_Uielements = new List<DateToolsAndUiElements>();
+
     [Header("Tools")]
     [SerializeField]
     Transform _conToolsBrush;
@@ -52,52 +50,213 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     Transform _conBrush;
 
+    [Header("Models")]
+    [SerializeField]
+    GameObject _prefabModels;
+    [SerializeField]
+    Transform parentModels;
+    [SerializeField]
+    GameObject _clonePrefab;
+    [SerializeField]
+    Transform _posModel;    
+
+
+    private void Awake()
+    {
+        if (instance == null)
+            instance = this;
+    }
+
+    public void CloseApp()
+    {
+        Application.Quit();
+    }
 
     public void GameStart()
     {
-        Instatiate_Tools(_conToolsBrush, _prefToolsBrush, _listToolsAndUIElements, GameManagetDate.instance.GetData(), "brush");
-        Instatiate_Tools(_conToolsColor, _prefToolsColor, _listToolsAndUIElements, GameManagetDate.instance.GetData(), "color");
-        Instatiate_Tools(_conToolsSticker, _prefToolsSticker, _listToolsAndUIElements, GameManagetDate.instance.GetData(), "sticker");
-        _paricalBg.SetActive(false);
-        MainCamera.SetActive(true);
+        SpawnModels();
+        Instatiate_Tools_UI(_conToolsBrush, _prefToolsBrush, GameManagetDate.instance.GetData(), "brush");
+        Instatiate_Tools_UI(_conToolsColor, _prefToolsColor, GameManagetDate.instance.GetData(), "color");
+        Instatiate_Tools_UI(_conToolsSticker, _prefToolsSticker, GameManagetDate.instance.GetData(), "sticker");
+        _rawBg.gameObject.SetActive(false);
+       // _paricalBg.SetActive(false);
+       // MainCamera.SetActive(true);
     }
 
-    void Instatiate_Tools(Transform container, GameObject prefab, ListToolsAndUIElements listToolsAndUIElements, DateGame dateBrushAndSticker, string nameTools)
+    public void CloseGame()
+    {
+        //MainCamera.SetActive(false);
+        //_paricalBg.SetActive(true);
+        _rawBg.gameObject.SetActive(true);
+        ClearToolsAndUI();
+        UI_Manager.instance.ClosePopapScale();
+    }
+
+    void Instatiate_Tools_UI(Transform container, GameObject prefab, DateGame dateBrushAndSticker, string nameTools)
     {
         switch (nameTools)
         {
             case "brush":
                 foreach (GameObject go in dateBrushAndSticker._listBrush)
                 {
-                    GameObject clone = Instantiate(prefab, container);
-                    clone.name = $"Tools_{go.name}";
+                    GameObject cloneTools = Instantiate(prefab, container);
+                    cloneTools.name = $"{go.name}";
                     Texture2D texture2D = go.GetComponent<Image>().sprite.texture;
-                    clone.GetComponent<P3dPaintDecal>().Texture = texture2D;
-                    listToolsAndUIElements._listBrushTools.Add(clone);
+                    cloneTools.GetComponent<P3dPaintDecal>().Texture = texture2D;
+
+                    GameObject cloneUI = Instantiate(_prefBrush, _conBrush);
+                    cloneUI.name = $"{go.name}";
+                    cloneUI.AddComponent<Button>();
+
+                    cloneUI.GetComponent<Button>().onClick.AddListener(() =>
+                    {
+                        CloseSticker();
+                        UI_Manager.instance.ClosePopapScale();
+                    });
+
+                    cloneUI.GetComponent<Image>().sprite = go.GetComponent<Image>().sprite;
+                    cloneUI.GetComponent<CwDemoButton>().IsolateTarget = cloneTools.transform;
+
+                    DateToolsAndUiElements buf = new DateToolsAndUiElements("Brush", false, cloneTools, cloneUI);
+                    _dateTools_Uielements.Add(buf);
                 }
-                UI_Manager.instance.Add_Ui_Game("brushUI", _prefBrush, _conBrush, GameManagetDate.instance.GetData(), _listToolsAndUIElements);
                 break;
             case "sticker":
                 foreach (GameObject go in dateBrushAndSticker._listSticker)
                 {
                     GameObject clone = Instantiate(prefab, container);
-                    clone.name = $"Tools_{go.name}";
+                    clone.name = $"{go.name}";
                     Texture2D texture2D = go.GetComponent<Image>().sprite.texture;
                     clone.GetComponent<P3dPaintDecal>().Texture = texture2D;
-                    listToolsAndUIElements._listStickerTools.Add(clone);
+                    clone.GetComponent<P3dPaintDecal>().Scale = new Vector3(3, 3, 4);
+                    scaleSticker.SetSize(3);
+                    GameObject cloneUI = Instantiate(go, _conSticker);
+                    cloneUI.name = $"{go.name}";
+                    cloneUI.AddComponent<Button>();
+
+                    cloneUI.GetComponent<Button>().onClick.AddListener(() =>
+                    {
+                        ColoseColorAndBrush();
+                        UI_Manager.instance.OpenPopapScale();
+                    });
+
+                    cloneUI.AddComponent<Outline>();
+                    cloneUI.AddComponent<CanvasGroup>();
+                    cloneUI.AddComponent<CwDemoButton>();
+                    cloneUI.GetComponent<CwDemoButton>().Link = CwDemoButton.LinkType.Isolate;
+                    cloneUI.GetComponent<CwDemoButton>().IsolateTarget = clone.transform;
+
+                    DateToolsAndUiElements buf = new DateToolsAndUiElements("Sticker", false, clone, cloneUI);
+                    _dateTools_Uielements.Add(buf);
                 }
-                UI_Manager.instance.Add_Ui_Game("stickerUI", null, _conSticker,GameManagetDate.instance.GetData(), _listToolsAndUIElements);
                 break;
             case "color":
+                int i = 0;
                 foreach (ColorDate go in dateBrushAndSticker._listColor)
                 {
                     GameObject clone = Instantiate(prefab, container);
-                    clone.name = $"Tools_{go.name}";
-                    clone.GetComponent<P3dPaintSphere>().Color = new Color32((byte)go.r, (byte)go.g, (byte)go.b, 255);
-                    listToolsAndUIElements._listColorTools.Add(clone);
+                    clone.GetComponent<P3dPaintSphere>().Color = DonwloadAssetBundlesSimplifWay.FromHex(go.hex);
+
+                    Color bufColor = DonwloadAssetBundlesSimplifWay.FromHex(go.hex);
+                    GameObject cloneUI = Instantiate(_prefColor, _conColor);
+                    cloneUI.GetComponent<Button>().interactable = true;
+                    cloneUI.GetComponent<ItemColor>().Set_IndexAndColor(i, bufColor);
+                    cloneUI.GetComponent<Image>().color = bufColor;
+                    i++;
+
+                    DateToolsAndUiElements buf = new DateToolsAndUiElements("Color", false, clone, cloneUI);
+                    _dateTools_Uielements.Add(buf);
                 }
-                UI_Manager.instance.Add_Ui_Game("colorUI",_prefColor, _conColor, GameManagetDate.instance.GetData(), _listToolsAndUIElements);
                 break;
+        }
+    }
+
+    public void SwitchColor(Color col)
+    {
+        for (int i = 0; i < _dateTools_Uielements.Count; i++)
+        {
+            if (_dateTools_Uielements[i].name == "Brush")
+            {
+                _dateTools_Uielements[i].tools.GetComponent<P3dPaintDecal>().Color = col;
+            }
+        }
+    }
+
+    void ColoseColorAndBrush()
+    {
+        for (int i = 0; i < _dateTools_Uielements.Count; i++)
+        {
+            if (_dateTools_Uielements[i].name == "Brush")
+            {
+                _dateTools_Uielements[i].tools.gameObject.SetActive(false);
+                _dateTools_Uielements[i].uiElements.GetComponent<CanvasGroup>().alpha = 0.5f;
+            }
+            if (_dateTools_Uielements[i].name == "Color")
+            {
+                _dateTools_Uielements[i].tools.gameObject.SetActive(false);
+                _dateTools_Uielements[i].uiElements.GetComponent<CanvasGroup>().alpha = 0.5f;
+            }
+        }
+    }
+
+    public void CloseSticker()
+    {
+        for (int i = 0; i < _dateTools_Uielements.Count; i++)
+        {
+            if (_dateTools_Uielements[i].name == "Sticker")
+            {
+                _dateTools_Uielements[i].tools.gameObject.SetActive(false);
+                _dateTools_Uielements[i].uiElements.GetComponent<CanvasGroup>().alpha = 0.5f;
+            }
+        }
+    }
+
+    public void ClearToolsAndUI()
+    {
+        for (int i = 0; i < _dateTools_Uielements.Count; i++)
+        {
+            Destroy(_dateTools_Uielements[i].uiElements);
+            Destroy(_dateTools_Uielements[i].tools);
+        }
+        _dateTools_Uielements.Clear();
+    }
+
+    public void SpawnModels()
+    {
+        GameObject buf = _clonePrefab;
+        _clonePrefab = Instantiate(_prefabModels, parentModels);
+        _clonePrefab.transform.position = _posModel.position;
+        buttonRotate.ResetY();
+        parentModels.DORotate(new Vector3(-90, 0, 0), 0.1f);
+        Destroy(buf);
+    }
+
+    public void HideCollorButton(GameObject item, int itemIndex)
+    {
+        for (int i = 0; i < _dateTools_Uielements.Count; i++)
+        {
+            if (_dateTools_Uielements[i].name == "Color")
+            {
+                if (_dateTools_Uielements[i].uiElements.GetComponent<ItemColor>().index != itemIndex)
+                {
+                    _dateTools_Uielements[i].uiElements.GetComponent<CanvasGroup>().alpha = 0.5f;
+                }
+                else
+                {
+                    _dateTools_Uielements[i].uiElements.GetComponent<CanvasGroup>().alpha = 1;
+                }
+            }
+        }
+    }
+
+    public void ScaleSticker()
+    {
+        foreach (DateToolsAndUiElements date in _dateTools_Uielements)
+        {
+            if (date.name == "Sticker")
+            {
+                date.tools.GetComponent<P3dPaintDecal>().Scale = new Vector3(scaleSticker.GetSize(), scaleSticker.GetSize(), scaleSticker.GetSize() + 1);
+            }
         }
     }
 }

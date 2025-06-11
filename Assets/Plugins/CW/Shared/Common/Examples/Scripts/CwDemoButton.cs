@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using DG.Tweening.Core.Easing;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace CW.Common
@@ -9,7 +10,7 @@ namespace CW.Common
 	[AddComponentMenu(CwShared.ComponentMenuPrefix + "Demo Button")]
 	public class CwDemoButton : MonoBehaviour, IPointerDownHandler
 	{
-		public enum LinkType
+        public enum LinkType
 		{
 			PreviousScene,
 			NextScene,
@@ -173,7 +174,7 @@ namespace CW.Common
 								}
 								else
 								{
-									isolateTarget.gameObject.SetActive(true);
+									isolateTarget.gameObject.SetActive(true);                                            
 								}
 							}
 							break;

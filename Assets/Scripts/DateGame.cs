@@ -14,15 +14,10 @@ public class DateGame
 [Serializable]
 public class ColorDate
 {
-    public ColorDate(string name, float r, float g, float b)
+    public ColorDate(string hex)
     {
-        this.name = name;
-        this.r = r;
-        this.g = g;
-        this.b = b;
+        this.hex = hex;
+
     }
-    public string name;
-    public float r;
-    public float g;
-    public float b;
+    public string hex;
 }

@@ -1,5 +1,4 @@
-using CW.Common;
-using System.Collections;
+using DG.Tweening;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,12 +7,12 @@ public class UI_Manager : MonoBehaviour
 {
     public static UI_Manager instance;
     [Header("ToolsPanelViewer")]
-    [Header("Sticker")]    
+    [Header("Sticker")]
     [SerializeField]
     Transform _conSticker;
     List<GameObject> _prefabStickerClon;
 
-    [Header("Brush")]    
+    [Header("Brush")]
     [SerializeField]
     Transform _conBrush;
     List<GameObject> _prefabBrushClon;
@@ -25,6 +24,14 @@ public class UI_Manager : MonoBehaviour
     [SerializeField]
     Transform _conColor;
 
+    [Header("Callibration")]
+    [SerializeField]
+    CanvasGroup _callibrationPanel;
+
+    [Header("Scale Sticker Popap")]
+    [SerializeField]
+    RectTransform _conScaleStickerPopap;
+
     private void Awake()
     {
         if (instance == null)
@@ -32,10 +39,19 @@ public class UI_Manager : MonoBehaviour
     }
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.P))
-            Instatiate_UI_Elements("brushbundle");
-        if (Input.GetKeyDown(KeyCode.O))
-            Instatiate_UI_Elements("stickerbundle");
+        if(Input.GetKeyDown(KeyCode.Q))
+        {
+            OpenPopapScale();
+        }
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            ClosePopapScale();
+        }
+    }
+
+    private void Start()
+    {
+       // _callibrationPanel.GetComponent<AnimUI>().ShowUI();
     }
 
     public void Instatiate_UI_Elements(string NameDownload)
@@ -65,8 +81,7 @@ public class UI_Manager : MonoBehaviour
                 foreach (ColorDate colorDateBuf in GameManagetDate.instance.GetData()._listColor)
                 {
                     GameObject buf = Instantiate(_prefabColor, _conColor);
-                    buf.name = colorDateBuf.name;
-                    Color bufColor = new Color32((byte)colorDateBuf.r, (byte)colorDateBuf.g, (byte)colorDateBuf.b, 255);
+                    Color bufColor = DonwloadAssetBundlesSimplifWay.FromHex(colorDateBuf.hex);
                     buf.GetComponent<Image>().color = bufColor;
                     buf.GetComponent<CanvasGroup>().alpha = 1;
                     _prefabColorClon.Add(buf);
@@ -94,41 +109,29 @@ public class UI_Manager : MonoBehaviour
         _prefabBrushClon.Clear();
     }
 
-    public void Add_Ui_Game(string nameUI,GameObject prefab, Transform container, DateGame dateGame, ListToolsAndUIElements listToolsAndUIElements)
+    public void ResetUIColor()
     {
-        switch (nameUI)
-        {
-            case "brushUI":
-                foreach (GameObject go in dateGame._listBrush)
-                {
-                    GameObject clone = Instantiate(prefab, container);
-                    clone.name = go.name;
-                    clone.GetComponent<Image>().sprite = go.GetComponent<Image>().sprite;
-                    clone.GetComponent<CwDemoButton>().enabled = false;
-                    listToolsAndUIElements._listBrush.Add(clone);
-                }
-                break;
-            case "stickerUI":
-                foreach (GameObject go in dateGame._listSticker)
-                {
-                    GameObject clone = Instantiate(go, container);
-                    listToolsAndUIElements._listSticker.Add(clone);
-                }
-                break;
-            case "colorUI":
-                int i = 0;
-                foreach (ColorDate go in dateGame._listColor)
-                {                    
-                    Color bufColor = new Color32((byte)go.r, (byte)go.g, (byte)go.b, 255);
-                    GameObject clone = Instantiate(prefab, container);
-                    clone.name = go.name;
-                    clone.GetComponent<Button>().interactable = true;
-                    clone.GetComponent<ItemColor>().Set_IndexAndColor(i, bufColor);                    
-                    clone.GetComponent<Image>().color = bufColor;
-                    listToolsAndUIElements._listColor.Add(clone);
-                    i++;
-                }
-                break;
+        for (int i = 0; i< _prefabColorClon.Count; i++)
+        { 
+            Destroy( _prefabColorClon[i]);
         }
+    }
+
+    public void OpenPopapScale()
+    {
+        _conScaleStickerPopap.DOKill();
+        _conScaleStickerPopap.GetComponent<CanvasGroup>().DOFade(1, 0.5f).SetEase(Ease.InQuad);
+        _conScaleStickerPopap.GetComponent<CanvasGroup>().interactable = true;
+        _conScaleStickerPopap.GetComponent<CanvasGroup>().blocksRaycasts = true;
+        _conScaleStickerPopap.DOAnchorPosY(-120, 0.5f).SetEase(Ease.InQuad);
+    }
+
+    public void ClosePopapScale()
+    {
+        _conScaleStickerPopap.DOKill();
+        _conScaleStickerPopap.DOAnchorPosY(0, 0.5f).SetEase(Ease.InQuad);
+        _conScaleStickerPopap.GetComponent<CanvasGroup>().DOFade(0, 0.5f).SetEase(Ease.InQuad);
+        _conScaleStickerPopap.GetComponent<CanvasGroup>().interactable = false;
+        _conScaleStickerPopap.GetComponent<CanvasGroup>().blocksRaycasts = false;        
     }
 }

@@ -27,4 +27,9 @@ public class ButtonRotate : MonoBehaviour
             _goRotate.transform.DORotate(new Vector3(-90, y, 0), 0.15f).SetEase(ease);
         }
     }
+
+    public void ResetY()
+    {
+        y = 0;
+    }
 }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GameManagetDate : MonoBehaviour
@@ -35,7 +36,7 @@ public class GameManagetDate : MonoBehaviour
     }
 
     public void SetColorDate(ColorDate colorDate)
-    {
+    {        
         dateBrushAndSticker._listColor.Add(colorDate);
     }
 
@@ -74,5 +75,11 @@ public class GameManagetDate : MonoBehaviour
                 dateBrushAndSticker._listColor.Clear();
                 break;
         }
+    }
+
+    public void ResetColorDate()
+    {
+        UI_Manager.instance.ResetUIColor();
+        dateBrushAndSticker._listColor.Clear();
     }
 }
